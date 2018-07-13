@@ -8,27 +8,38 @@ filter.connect(audioCtx.destination);
 
 
 
-let waveform = 'sawtooth'
-
 
 //PARAMS INTERFACE
-
-//FIXME remove Q so as not to blow up anyones speakers
-//FIXME why the fuck are the range values not updating properly - working when keys are held down....
-
 document.addEventListener("DOMContentLoaded", function(event) {
-  document.getElementById('waveform').addEventListener('change', function(event) {waveform = event.target.value}, false);
-  document.getElementById('gain').addEventListener('change', function(event) {gain.gain.value = event.target.value}, false);
-  document.getElementById('filterType').addEventListener('change', function(event) {filter.type = event.target.value}, false);
-  document.getElementById('filterFrequency').addEventListener('change', function(event) {
-    filter.frequency.value = event.target.value
-    console.log(filter)
-  }, false);
-  document.getElementById('filterQ').addEventListener('change', function(event) {
-    filter.Q.value = event.target.value
-    console.log(filter)
-  }, false);
+  document.getElementById('waveform').addEventListener('change', updateSynthParams, false);
+  document.getElementById('gain').addEventListener('change', updateSynthParams, false);
+  document.getElementById('filterType').addEventListener('change', updateSynthParams, false);
+  document.getElementById('filterFrequency').addEventListener('change', updateSynthParams, false);
+  document.getElementById('filterQ').addEventListener('change', updateSynthParams, false);
 });
+
+function updateSynthParams(event) {
+  const param = event.target.id;
+  synthParams[param] = event.target.value;
+}
+
+//FIXME
+//need to control the nodes' audio params in real time when inputs change.....
+//FIXME
+//dont use .watch
+//FIXME
+synthParams.watch('gain', function(param, oldval, newval){
+  gain.gain.setValueAtTime(newval, audioCtx.currentTime);
+})
+synthParams.watch('filterType', function(param, oldval, newval){
+  filter.type = newval
+})
+synthParams.watch('filterFrequency', function(param, oldval, newval){
+  filter.frequency.setValueAtTime(newval, audioCtx.currentTime);
+})
+synthParams.watch('filterQ', function(param, oldval, newval){
+  filter.Q.setValueAtTime(newval, audioCtx.currentTime);
+})
 
 
 //MUSICAL KEYBOARD INTERFACE
@@ -61,6 +72,13 @@ const keyboardFrequencyMap = {
 }
 
 const activeOscillators = {};
+const synthParams = {
+  waveform: 'sawtooth',
+  gain: 0.5,
+  filterFrequency: 350.0,
+  filterQ: 1.0,
+  filterType: 'lowpass'
+}
 
 window.addEventListener('keydown', keyDown, false);
 window.addEventListener('keyup', keyUp, false);
@@ -83,7 +101,7 @@ function keyUp(event) {
 function playNote(key) {
   const osc = audioCtx.createOscillator();
   osc.frequency.setValueAtTime(keyboardFrequencyMap[key], audioCtx.currentTime)
-  osc.type = waveform
+  osc.type = synthParams['waveform']
   activeOscillators[key] = osc
   activeOscillators[key].connect(gain)
   activeOscillators[key].start();
