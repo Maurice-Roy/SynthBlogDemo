@@ -1,5 +1,5 @@
-//EVERYTHING IS PLACED INSIDE A DOMContentLoaded EVENT SO THAT WHEN WE getElementById,
-//THE ELEMENTS ARE LOADED & AVAILABLE
+//EVERYTHING IS PLACED INSIDE A DOMContentLoaded EVENT SO THAT WHEN
+//WE getElementById, THE ELEMENTS ARE LOADED & AVAILABLE
 document.addEventListener("DOMContentLoaded", function(event) {
   //SET UP AUDIO CONTEXT
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
